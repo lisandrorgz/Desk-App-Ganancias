@@ -1,0 +1,4 @@
+psycopg2==2.9.5
+pytz==2022.7.1
+tk==0.1.0
+tkcalendar==1.6.1

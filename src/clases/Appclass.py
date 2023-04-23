@@ -3,15 +3,21 @@ from .MainPageclass import MainPage
 from .RegPageclass import RegPage
 from .showTclass import TablePage
 from .StatsPage import StatsPage
+from datetime import datetime, timezone, timedelta
 import base64, os
 
 class App(Tk):
-   
+     
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
+        # Variables de configuración
+        self.tiempo_de_la_zona_latam = timezone(timedelta(hours=-5))
+        self.hoy = datetime.now(self.tiempo_de_la_zona_latam)
+        self.option_add('*timezone', self.tiempo_de_la_zona_latam)
         self.geometry("600x400")
         self.resizable(False,False)
         self.title("Ganancias")
+        # logo 
         self.img = """
         AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAHYAAAB2AAAAAAAA
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAvAAAATQAAAE0AAAAvAAAAAgAAAAAAAAAA
@@ -34,46 +40,47 @@ class App(Tk):
         AAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAA
         AAAA+B8AAMADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAYAAAAGAAADH4wAAA8AAAIPB
         AADH4wAA7/cAAA=="""
-       
-        container = Frame(self)
-        container.pack()
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        # Contenedor de frames (1 por pagina)
+        contenedor = Frame(self)
+        contenedor.pack()
+        # Todos puestos uno arriba del otro
+        contenedor.grid_rowconfigure(0, weight=1)
+        contenedor.grid_columnconfigure(0, weight=1)
         self.frames = {}
+        # Instancias de cada pagina en el mismo contenedor
         for F in (MainPage, RegPage, TablePage, StatsPage):
-            page_name = F.__name__
-            frame = F(container, self) 
-            self.frames[page_name] = frame
+            nombre_de_la_pagina = F.__name__
+            frame = F(contenedor, self) 
+            self.frames[nombre_de_la_pagina] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-
-        self.show_frame("MainPage")
-        self.tempFile= "coin.ico"
-        self.icondata= base64.b64decode(self.img)
-        self.iconfile= open(self.tempFile,"wb")
+        # Se instancia app y renderiza la pagina principal
+        self.mostrar_frame("MainPage")
+        self.tempFile = "coin.ico"
+        # Decodificación y sobreescritura del logo
+        self.icondata = base64.b64decode(self.img)
+        self.iconfile = open(self.tempFile,"wb")
         self.iconfile.write(self.icondata)
         self.iconfile.close()
         self.wm_iconbitmap(self.tempFile)
         os.remove(self.tempFile)
         
-
-    def show_frame(self, page_name, value=None, obj=None):
-        frame = self.frames[page_name]
+    # Funcion que navega entra frames, cada vez que es llamado por algun boton en los otros frames, tomando valores respectivos para ejecutar acciones
+    def mostrar_frame(self, nombre_pag, valor=None, objeto=None):
+        frame = self.frames[nombre_pag]
         if frame.__class__.__name__ == "TablePage":
-                frame.set_text_page(value)
+                frame.texto_mod_reg(valor)
         elif frame.__class__.__name__ == "RegPage":
-                if not obj == None:
-                    frame.set_text_value(value, obj)
+                if not objeto == None:
+                    frame.texto_mod_reg(valor, objeto)
                 else:
-                     frame.set_text_value(value)
+                     frame.texto_mod_reg(valor)
         elif frame.__class__.__name__ == "StatsPage":
-             if self.frames["StatsPage"]._mayor == -1:
+             if not(self.frames["TablePage"].items):
                   messagebox.showerror(title="Error", message="No hay dias registrados")
                   return None
         frame.tkraise()
     
     
-    def reloadQuery(self):
-        self.frames["TablePage"].reload_list()
 
         
         

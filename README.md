@@ -1,7 +1,7 @@
 # Ganancias-App
 
 
-Aplicación desarrollada por la necesidad de registrar las ganancias diarias y de extraer información sobre los dias facturados en un trabajo de temporada como camarero
+Aplicación desarrollada como solución a la necesidad de registrar las ganancias/propinas en un trabajo de temporada como camarero y de extraer información relevante de los datos registrados.
 
 Tecnologías Aplicadas:
 Python
